@@ -23,6 +23,13 @@ public class PassPhraseCryptoTest {
 	private static final byte[] EXPECTED_BYTES = { 
 		-33, 18, 48, 42, 39, -38, -19, -4, -47, -71, -118, 71, 18, -97, -41, -11, -46, -6, 23, 38, -79, 13, -69, -103, -70, -110, -116, -79, 55, 8, 32, -7, -47, 43, -8, -99, 48, -39, -88, 35, -111, 14, 101, 4, 127, -56, 36, -24, 99, -45, -31
 	};
+
+	@Test
+	public final void shouldTest() {
+		PassPhraseCrypto passPhraseCrypto = new PassPhraseCrypto();
+		CharSequence passPhrase = "Pass@123";
+		System.out.println("Encrypted salt"+passPhraseCrypto.getHashedPassPhraseNow(passPhrase));
+	}
 	
 	@Test
 	public final void shouldReturnAByteArrayWith51Elements() {

@@ -16,7 +16,7 @@ public class WSUsers {
 
 	private final Connection wsConnection;
 
-	protected WSUsers(Connection wsConnection) {
+	public WSUsers(Connection wsConnection) {
 		
 		this.wsConnection = wsConnection;
 		
@@ -91,6 +91,46 @@ public class WSUsers {
 		} catch (SQLException ex) {
 
 			LOGGER.error("User Add - A Database error occured: {}", ex.getMessage());
+		}
+	}
+
+	public synchronized void addDecoyKnocks(String decoyKnock ) {
+		String sqlUsers = "INSERT INTO PUBLIC.DECOY_KNOCK(DECOYKNOCK, CREATED, MODIFIED) " + "VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
+		try {
+			PreparedStatement psUsers = wsConnection.prepareStatement(sqlUsers);
+			psUsers.setString(1, decoyKnock);
+			psUsers.executeUpdate();
+			psUsers.close();
+
+			LOGGER.info("Decoy Knock was sucessfully recorded...", decoyKnock);
+		} catch (SQLException ex) {
+			LOGGER.error("User Add - A Database error occured: {}", ex.getStackTrace());
+		}
+	}
+
+	public synchronized void addDecoyUsers(String fullName, CharSequence passSeq, String eMail,
+										String phone) {
+		int cust_id = 0;
+		String sqlUsers = "INSERT INTO PUBLIC.DECOY_USERS(PPID, FULLNAME, DECOY_PASSPHRASE, EMAIL, PHONE, CREATED, MODIFIED) " +
+				"VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
+		LOGGER.info("Adding Decoy user {} to the database...", fullName);
+		try {
+			PreparedStatement psUsers = wsConnection.prepareStatement(sqlUsers);
+			cust_id = 11;
+			psUsers.setInt(1, cust_id);
+			psUsers.setString(2, fullName);
+			psUsers.setString(3, passSeq.toString());
+			psUsers.setString(4, eMail);
+			psUsers.setString(5, phone);
+			psUsers.executeUpdate();
+
+			psUsers.close();
+
+			LOGGER.info("User {} added.", fullName);
+
+		} catch (SQLException ex) {
+
+			LOGGER.error("User Add - A Database error occured: {}", ex.getStackTrace());
 		}
 	}
 
@@ -236,6 +276,49 @@ public class WSUsers {
 				resultsBuffer.append(StringUtils.rightPad(rs.getString(2), 8));
 				resultsBuffer.append(StringUtils.rightPad(StringUtils.abbreviate(rs.getString(3), 23), 24));
 				resultsBuffer.append(rs.getString(4), 0, 23);
+				resultsBuffer.append('\n');
+			}
+			resultsBuffer.append("___________________________________________________________");
+			resultsBuffer.append('\n');
+
+			rs.close();
+			stmt.close();
+
+		} catch (SQLException ex) {
+
+			LOGGER.error("User Show - A Database error occured: {}", ex.getMessage());
+
+		}
+
+		return resultsBuffer.toString();
+	}
+
+	public synchronized String showAllDecoyKnocks() {
+
+		StringBuffer resultsBuffer = new StringBuffer();
+		resultsBuffer.append('\n');
+		resultsBuffer.append("Decoy Knocks Table:");
+		resultsBuffer.append('\n');
+		resultsBuffer.append("___________________________________________________________");
+		resultsBuffer.append('\n');
+		resultsBuffer.append(StringUtils.rightPad("ID", 4));
+		resultsBuffer.append(StringUtils.rightPad("Decoy Knock", 108));
+		resultsBuffer.append(StringUtils.rightPad("Last Modified", 25));
+		resultsBuffer.append('\n');
+		resultsBuffer.append("-----------------------------------------------------------");
+		resultsBuffer.append('\n');
+
+		final String sqlPassUsers  = "SELECT USID, DECOYKNOCK, MODIFIED FROM DECOY_KNOCK;";
+
+		try {
+
+			Statement stmt = wsConnection.createStatement();
+			ResultSet rs = stmt.executeQuery(sqlPassUsers);
+
+			while (rs.next()) {
+				resultsBuffer.append(StringUtils.rightPad(rs.getString(1), 4));
+				resultsBuffer.append(StringUtils.rightPad(rs.getString(2), 108));
+				resultsBuffer.append(rs.getString(3), 0, 23);
 				resultsBuffer.append('\n');
 			}
 			resultsBuffer.append("___________________________________________________________");

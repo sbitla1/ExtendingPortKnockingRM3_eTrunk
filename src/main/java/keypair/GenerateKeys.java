@@ -1,4 +1,4 @@
-package net.seleucus.wsp.keypair;
+package keypair;
 
 import java.io.File;
 import java.io.FileOutputStream;

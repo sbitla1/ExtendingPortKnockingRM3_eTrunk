@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,7 +68,7 @@ class WSLegacyLogListenerTest {
         //Incorrect
         String requestLine1 = "127.0.0.1 - - [17/Nov/2020:14:18:39 -0700] \"GET /_8nliF9OLreqLazrEfMx5jbyUaa9JUEEfznecAKftXpZle0AC1E20Lw3Uzy2O3iQrf7tVR1fZ0-Egs9GuS1PhNV3slQaxS8YBeem/ HTTP/1.1\" 404 196";
 
-        //correct pass
+        //correct pass skbitla
         String requestLine = "127.0.0.1 - - [17/Nov/2020:13:06:12 -0700] \"GET /Q5iKXZYNjcCghittooYHo8oE-9WBS5ShjLrsJL9uC6sAA4wSw64uVwbuwaCE0VMV94KLzuUaxn4zjY0nfYIGs1DNrdXUz7Uetkas/ HTTP/1.1\" 404 196";
 
         String[] usernames = {"skbitla"};
@@ -92,7 +93,11 @@ class WSLegacyLogListenerTest {
         String requestLine1 = "127.0.0.1 - - [17/Nov/2020:14:18:39 -0700] \"GET /_8nliF9OLreqLazrEfMx5jbyUaa9JUEEfznecAKftXpZle0AC1E20Lw3Uzy2O3iQrf7tVR1fZ0-Egs9GuS1PhNV3slQaxS8YBeem/ HTTP/1.1\" 404 196";
 
         String[] usernames1 = {"mack123"};
-        String[] passphrases1 = {"Value*12345"};
+        String[] passphrases1 = {"Value*12345","klemgrj5357","lknloej3rnj4","dfffejk34","dbbkb3334","Pass1234"};
+
+        List<String> intList = Arrays.asList(passphrases1);
+        Collections.shuffle(intList);
+        intList.toArray(passphrases1);
 
         String localHost = "http://localhost:80";
         String ipAddressToKnock = "http://29f7a.yeg.rac.sh:80";
@@ -139,7 +144,7 @@ class WSLegacyLogListenerTest {
 
         for (int i=0;i<passphrases.length;i++){
             for (int j = 0; j < 30; j++) {
-                //wsServer.runOSCommandTest(ppIds[i], actionIds[i], localHost, passphrases[i]);
+               // wsServer.runOSCommandTest(ppIds[i], actionIds[i], localHost, passphrases[i]);
             }
         }
     }
@@ -178,6 +183,27 @@ class WSLegacyLogListenerTest {
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
+        }
+    }
+
+    @Test
+    void testWSServerDummy() throws Exception {
+
+        WSServer wsServer = new WSServer(new WebSpa(WSConsole.getWsConsole()));
+        WSLegacyLogListener wsLegacyLogListener = new WSLegacyLogListener(wsServer);
+
+        Integer[] ppIdArray = {11,12,14,15,16,13};
+        String[] usernames = {"skbitla","afafuser123","456htrh","hthtrhr454","rgeg5ht6","Pass@1234"};
+        String[] passphrases = {"Pass@123","afafgr56t5g","456htrh","hthtrhr454","rgeg5ht6","Pass@1234"};
+
+        List<Integer> intList = Arrays.asList(ppIdArray);
+        Collections.shuffle(intList);
+        intList.toArray(ppIdArray);
+
+        for (int i = 0; i < ppIdArray.length; i++) {
+            for (int j = 0; j < 30; j++) {
+                wsLegacyLogListener.handleDummy(passphrases[i], usernames[i], ppIdArray[i]);
+            }
         }
     }
 }

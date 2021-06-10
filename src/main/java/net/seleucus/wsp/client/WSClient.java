@@ -1,32 +1,37 @@
 package net.seleucus.wsp.client;
 
+import javafx.concurrent.Task;
+import net.seleucus.wsp.console.WSConsole;
+import net.seleucus.wsp.db.WSDatabase;
 import net.seleucus.wsp.main.WSGestalt;
 import net.seleucus.wsp.main.WebSpa;
+import net.seleucus.wsp.server.WSServer;
 import net.seleucus.wsp.util.WSKnownHosts;
 import net.seleucus.wsp.util.WSUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.*;
-import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateEncodingException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 public class WSClient extends WSGestalt {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(WSClient.class);
+	String names[] = {"JAMES", "JOHN", "ROBERT", "MICHAEL", "WILLIAM", "DAVID", "RICHARD", "CHARLES", "JOSEPH", "THOMAS", "CHRISTOPHER", "DANIEL", "PAUL", "MARK", "DONALD", "GEORGE", "KENNETH", "STEVEN", "EDWARD", "BRIAN", "RONALD", "ANTHONY", "KEVIN", "JASON", "MATTHEW", "GARY", "TIMOTHY", "JOSE", "LARRY", "JEFFREY", "FRANK", "SCOTT", "ERIC"};
+	int actionNumber_array[] = {1,2,3,4,5,6,7,8,9};
+	String[] pass_array = {"Value*12345", "Pass123", "Secure*12", "Password123","password1","111111", "qwerty", "1q2w3e4r", "adobe123","1qaz2wsx","qwertyuiop","trustno1"};
+	private WSServer wsServer;
 
 	public WSClient(final WebSpa myWebSpa) {
 		super(myWebSpa);
@@ -38,7 +43,7 @@ public class WSClient extends WSGestalt {
 	}
 
 	@Override
-	public void runConsole() {
+	public void runConsole() throws SQLException, IOException, ClassNotFoundException {
 
 		LOGGER.info("");
 		LOGGER.info("WebSpa - Single HTTP/S Request Authorisation");
@@ -49,10 +54,61 @@ public class WSClient extends WSGestalt {
 		CharSequence password = readPasswordRequired("Your pass-phrase for that host");
 		int action = readLineRequiredInt("The action number", 0, 9);
 
-		clientBodyMethod(host,password,action, host);
+		final String choice = readLineOptional("Testing Feature: Do you want to Add some Decoy Knocks as well? [y/N]");
+
+		Hashtable<Integer, String> decoyKnockMap = new Hashtable<>();
+		decoyKnockMap.put(1, "Value*12345");
+		decoyKnockMap.put(2, "Secure*12");
+		decoyKnockMap.put(3, "1q2w3e4r");
+		decoyKnockMap.put(4, "adobe123");
+		decoyKnockMap.put(5, "1qaz2wsx");
+		decoyKnockMap.put(action,password.toString());
+
+		if (WSUtil.isAnswerPositive(choice)) {
+			//int count = readLineOptionalInt("How many Decoy Knocks you want to Add into WebSpa?");
+			//for (int i = 0; i < count; ++i) {
+			List<Map.Entry<Integer, String>> entries = new ArrayList<>(decoyKnockMap.entrySet());
+			Collections.shuffle(entries);
+			for (Map.Entry<Integer, String> entry : entries) {
+					clientBodyMethod(host, entry.getValue(), entry.getKey());
+				LOGGER.info("Your WebSpa Knock is for PassPhrase: {}", entry.getValue());
+			}
+		} else {
+			clientBodyMethod(host, password, action);
+		}
 	}
 
-	public void clientBodyMethod(String host, CharSequence password, int action, String hostName){
+	public void runConsoleForRM3(boolean flag, String originalPassphrase) throws SQLException, IOException, ClassNotFoundException {
+
+
+		//String host = readLineRequired("Host [e.g. https://localhost/]");
+		//CharSequence password = readPasswordRequired("Your pass-phrase for that host");
+		//int action = readLineRequiredInt("The action number", 0, 9);
+
+		final boolean choice = flag;
+
+		Hashtable<Integer, String> decoyKnockMap = new Hashtable<>();
+		decoyKnockMap.put(1, "Value*12345");
+		decoyKnockMap.put(2, "Secure*12");
+		decoyKnockMap.put(3, "1q2w3e4r");
+		decoyKnockMap.put(4, "adobe123");
+		decoyKnockMap.put(5, "1qaz2wsx");
+		decoyKnockMap.put(1, originalPassphrase);
+
+		if (choice) {
+			//int count = readLineOptionalInt("How many Decoy Knocks you want to Add into WebSpa?");
+			//for (int i = 0; i < count; ++i) {
+			List<Map.Entry<Integer, String>> entries = new ArrayList<>(decoyKnockMap.entrySet());
+			Collections.shuffle(entries);
+
+			for (Map.Entry<Integer, String> entry : entries) {
+				clientBodyMethod("http://localhost:80", entry.getValue(), entry.getKey());
+				LOGGER.info("Your WebSpa Knock is for PassPhrase: {}", entry.getValue());
+			}
+		}
+	}
+
+	public void clientBodyMethod(String host, CharSequence password, int action){
 		long startTime = System.nanoTime();
 		Instant start = Instant.now();
 		WSRequestBuilder myClient = new WSRequestBuilder(host, password, action);
@@ -66,7 +122,6 @@ public class WSClient extends WSGestalt {
 		//if (WSUtil.isAnswerPositive(sendChoice) || sendChoice.isEmpty()) {
 
 		if(true){
-
 
 			WSConnection myConnection = new WSConnection(knock);
 
@@ -134,28 +189,18 @@ public class WSClient extends WSGestalt {
 				}
 
 			} else {
-
-
 				myConnection.sendRequest();
-
-				long endTime = System.nanoTime();
-				long elapsedTime = endTime - startTime;
-
-				//long timeElapsed =
-
-				// 1 second = 1_000_000_000 nano seconds
-				double elapsedTimeInMS = (double) elapsedTime / 1000000;
-				double seconds = (double)elapsedTime / 1_000_000_000.0;
 
 				Instant finish = Instant.now();
 				long timeElapsed = Duration.between(start, finish).toMillis();
 
-				createExtraAuthTimeLogFile(String.valueOf(timeElapsed), password, hostName);
+				createExtraAuthRM3(String.valueOf(startTime), String.valueOf(finish), String.valueOf(timeElapsed), password.toString());
 
+				//createExtraAuthTimeLogFile(String.valueOf(timeElapsed), password,"");
+				LOGGER.info("Elapsed Time: {}", timeElapsed);
 				LOGGER.info(myConnection.responseMessage());
 				LOGGER.info("HTTP Response Code: {}", myConnection.responseCode());
-				LOGGER.info("Instant Time: {}", "Start "+start+"finish "+finish+" "+timeElapsed);
-
+				//LOGGER.info("Instant Time: {}", "Start "+start+"finish "+finish+" "+timeElapsed);
 			}
 
 		}
@@ -166,14 +211,60 @@ public class WSClient extends WSGestalt {
 		return InetAddress.getByName(url.getHost()).getHostAddress();
 	}
 
+	//method introduced to create the Extra auth file in project struture to capture the elapsed time for webSpa user
+	public static void createExtraAuthRM3(String start,String finish,String elapsedTime, CharSequence passphrase){
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append(start+", ");
+			sb.append(finish +", ");
+			sb.append(elapsedTime +" ms");
+
+			String filePath = "F://trunk/WebSpa/webSpaAERM3.csv";
+			File myObj = new File(filePath);
+			if (!myObj.exists()) {
+				myObj.createNewFile();
+			} else {
+             /*   FileWriter fileWriter = new FileWriter(filePath, true); //Set true for append mode
+                PrintWriter printWriter = new PrintWriter(fileWriter);
+                printWriter.println(sb);  //New line
+                printWriter.close();*/
+				//LOGGER.info("File created for Extra Auth"+result);
+
+				List<List<String>> rows = Arrays.asList(
+						Arrays.asList(start, finish, elapsedTime)
+				);
+
+				FileWriter csvWriter = new FileWriter(filePath, true);
+              /*  csvWriter.append("WebSpa Server started processing time :");
+                csvWriter.append(",");
+                csvWriter.append("Response time from HoneyChecker Recieved :");
+                csvWriter.append(",");
+                csvWriter.append("Time in ms");
+                csvWriter.append("\n");*/
+
+				for (int i = 0; i < rows.size(); i++) {
+					csvWriter.append(String.join(",", rows.get(i)));
+					csvWriter.append("\n");
+				}
+				csvWriter.flush();
+				csvWriter.close();
+			}
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+
 	public static void createExtraAuthTimeLogFile(String str, CharSequence passphrase, String hostName){
 		try {
 			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			StringBuilder sb = new StringBuilder();
 			sb.append("WebSpa Client knock extra Auth Time:  "+str +" ms , ");
 			sb.append("Pass-phrase :"+passphrase+" , ");
+			sb.append("Timestamp :"+timestamp+" , ");
 			//sb.append("HostName :"+hostName+" , ");
 			//sb.append("Timestamp :"+timestamp.toString());
+			//String filePath = "F://trunk/WebSpa/webSpaAuthTimeRM3.csv";
 			String filePath = "F://trunk/WebSpa/extraAuthTimeFileC1ient.txt";
 			File myObj = new File(filePath);
 			if (!myObj.exists()) {
@@ -183,7 +274,7 @@ public class WSClient extends WSGestalt {
 				PrintWriter printWriter = new PrintWriter(fileWriter);
 				printWriter.println(sb);  //New line
 				printWriter.close();
-				LOGGER.info("File created for Extra Auth Time : "+sb);
+				//LOGGER.info("File created for Extra Auth Time : "+sb);
 			}
 		} catch (IOException e) {
 			System.out.println("An error occurred.");
@@ -232,6 +323,12 @@ public class WSClient extends WSGestalt {
 		} catch (IOException e) {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
+		}
+	}
+
+	public void runConsoleTest() {
+		for (int i = 0; i < 5; i++) {
+			wsServer.getWSDatabase().users.addDecoyUsers(names[new Random().nextInt(names.length)], RandomStringUtils.random(10, true, true), "", "");
 		}
 	}
 }

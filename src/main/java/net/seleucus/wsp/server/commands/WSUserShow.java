@@ -12,6 +12,7 @@ public class WSUserShow extends WSCommandOption {
 	protected void execute() {
 
 		final String users = this.myServer.getWSDatabase().users.showAllUsers();
+
 		myServer.println(users);
 
 	} // execute method

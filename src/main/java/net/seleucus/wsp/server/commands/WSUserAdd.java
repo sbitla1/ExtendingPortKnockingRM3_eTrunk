@@ -1,6 +1,12 @@
 package net.seleucus.wsp.server.commands;
 
+import keypair.EncryptionUtil;
 import net.seleucus.wsp.server.WSServer;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.security.PublicKey;
 
 public class WSUserAdd extends WSCommandOption {
 
@@ -9,7 +15,7 @@ public class WSUserAdd extends WSCommandOption {
 	}
 
 	@Override
-	protected void execute() {
+	protected void execute() throws IOException, ClassNotFoundException {
 		
 		String fullName = myServer.readLineRequired("Enter the New User's Full Name");
 		
@@ -29,16 +35,21 @@ public class WSUserAdd extends WSCommandOption {
 			
 			
 		} while(passPhraseInUse);
-				
+
 		String eMail = myServer.readLineOptional("Please enter the New User's Email Address");
 		String phone = myServer.readLineOptional("Please enter the New User's Phone Number");
-				
-		myServer.getWSDatabase().users.addDupUser(fullName, passSeq, eMail, phone);
+
+		ObjectInputStream inputStream;
+		inputStream = new ObjectInputStream(new FileInputStream(EncryptionUtil.PUBLIC_KEY_FILE));
+		final PublicKey publicKey = (PublicKey) inputStream.readObject();
+		byte[] encryptPassSeq = EncryptionUtil.encrypt(String.valueOf(passSeq), publicKey);
+
+		myServer.getWSDatabase().users.addDupUser(fullName, encryptPassSeq.toString(), eMail, phone);
 		
 	} // execute method
 	
 	@Override
-	public boolean handle(final String cmd) {
+	public boolean handle(final String cmd) throws IOException, ClassNotFoundException {
 
 		boolean validCommand = false;
 
@@ -65,5 +76,4 @@ public class WSUserAdd extends WSCommandOption {
 		return valid;
 		
 	}  // isValid method
-
 }

@@ -57,7 +57,7 @@ public final class PassPhraseCrypto extends WebSpaUtils {
 
 	}
 	
-	private PassPhraseCrypto() { 
+	PassPhraseCrypto() {
 		// Standard to avoid instantiation 'accidents'
 		throw new UnsupportedOperationException();
 	}

@@ -135,11 +135,12 @@ public class WSServer extends WSGestalt {
 		final WSAction action = new WSAction(this, ppID, actionNumber, ipAddress);
 		// Future<Boolean> task = myExecService.submit(action);
 		myExecService.submit(action);
-		
+
+
 	}
 
 	@Override
-	public void runConsole() throws SQLException {
+	public void runConsole() throws SQLException, IOException, ClassNotFoundException {
 		
 		LOGGER.info("");
 		LOGGER.info("WebSpa - Single HTTP/S Request Authorisation");
@@ -193,7 +194,7 @@ public class WSServer extends WSGestalt {
 		myDatabase.shutdown();	
 	}
 
-	public void processCommand(final String command) {
+	public void processCommand(final String command) throws IOException, ClassNotFoundException {
 		
 		myServerCommand.executeCommand(command.trim());
 		

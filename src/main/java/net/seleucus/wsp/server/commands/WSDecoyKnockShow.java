@@ -2,20 +2,18 @@ package net.seleucus.wsp.server.commands;
 
 import net.seleucus.wsp.server.WSServer;
 
-public class WSUserShow extends WSCommandOption {
+public class WSDecoyKnockShow extends WSCommandOption {
 
-	public WSUserShow(WSServer myServer) {
+	public WSDecoyKnockShow(WSServer myServer) {
 		super(myServer);
 	}
 
 	@Override
 	protected void execute() {
 
-		final String users = this.myServer.getWSDatabase().users.showAllUsers();
 		final String decoyKnocks = this.myServer.getWSDatabase().users.showAllDecoyKnocks();
 
-		myServer.println(users);
-		myServer.println(decoyKnocks);
+			myServer.println(decoyKnocks);
 
 	} // execute method
 
@@ -38,7 +36,7 @@ public class WSUserShow extends WSCommandOption {
 		
 		boolean valid = false;
 		
-		if(cmd.equalsIgnoreCase("user show")) {
+		if(cmd.equalsIgnoreCase("knock show")) {
 			
 			valid = true;
 		

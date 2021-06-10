@@ -5,6 +5,7 @@ import net.seleucus.wsp.server.commands.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -35,10 +36,11 @@ public class WSServerConsole {
 		this.commands.add(new WSUserActivate(this.myServer));
 		this.commands.add(new WSUserAdd(this.myServer));
 		this.commands.add(new WSUserShow(this.myServer));
+		this.commands.add(new WSDecoyKnockShow(this.myServer));
 		this.commands.add(new WSPassPhraseDuplicateAdd(this.myServer));
 	}
 
-	public void executeCommand(final String command) {
+	public void executeCommand(final String command) throws IOException, ClassNotFoundException {
 		
 		boolean commandFound = false;
 		

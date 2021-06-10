@@ -19,9 +19,9 @@ public class WSPassPhraseDuplicateAdd extends WSCommandOption {
 		
 		int ppID = myServer.readLineOptionalInt("Select a User ID to Enter another Pass-Phrase");
 		boolean userIDFound = myServer.getWSDatabase().passPhrases.isPPIDInUse(ppID);
-		
-		if(userIDFound == false) {
-			
+
+		if (userIDFound == false) {
+
 			myServer.println("User ID Not Found");
 
 		} else {
@@ -29,7 +29,6 @@ public class WSPassPhraseDuplicateAdd extends WSCommandOption {
 			String userName = myServer.getWSDatabase().users.getUsersFullName(ppID);
 			
 			final String choice = myServer.readLineOptional("Add duplicate pass-phrase [y/N]");
-
 
 			//Call dup user adding method here
 			addDupUserPassPhrase(ppID);
@@ -58,13 +57,13 @@ public class WSPassPhraseDuplicateAdd extends WSCommandOption {
 
 		boolean validCommand = false;
 
-		if(isValid(cmd)) {
+		if (isValid(cmd)) {
 			validCommand = true;
 			this.execute();
 		}
-		
+
 		return validCommand;
-		
+
 	} // handle method
 
 	@Override
@@ -95,7 +94,6 @@ public class WSPassPhraseDuplicateAdd extends WSCommandOption {
 				myServer.println("WebSpa pass-phrases have to be unique for each user");
 			}
 
-
 		} while(passPhraseInUse);
 
 		String eMail = "admin@gmail.com";
@@ -110,18 +108,19 @@ public class WSPassPhraseDuplicateAdd extends WSCommandOption {
 			}
 		System.out.println(+numberofPassPhrases+ "-" + "Duplicate Pass-Phrases Added to user {} to the database... for the user " +currentUser);
 	}
-	// function to generate a random string of length n
-	static String getAlphaNumericPassPhraseString() {
+	// function to generate a random pass-phrase string of length n
+	String getAlphaNumericPassPhraseString() {
 		int leftLimit = 48; // numeral '0'
 		int rightLimit = 122; // letter 'z'
-		int targetStringLength = 10;
+		int targetStringLength = 20;
 		String generatedString = null;
 		Random random = new Random();
 
 		generatedString = random.ints(leftLimit, rightLimit + 1)
 				.filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
 				.limit(targetStringLength)
-				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+				.collect(StringBuilder::new, StringBuilder::appendCodePoint,
+						StringBuilder::append)
 				.toString();
 		// System.out.println(generatedString);
 		return generatedString;

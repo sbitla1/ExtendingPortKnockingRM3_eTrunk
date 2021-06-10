@@ -4,6 +4,7 @@ import net.seleucus.wsp.console.WSConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.CharBuffer;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -133,7 +134,7 @@ public abstract class WSGestalt {
         LOGGER.info("Goodbye!");
     }
 
-	public void runConsole() throws SQLException {
+	public void runConsole() throws SQLException, IOException, ClassNotFoundException {
         LOGGER.debug("Run console called");
     }
 	

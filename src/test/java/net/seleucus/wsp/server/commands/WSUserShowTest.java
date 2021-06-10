@@ -5,8 +5,12 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import net.seleucus.wsp.console.WSConsole;
+import net.seleucus.wsp.db.WSUsers;
 import net.seleucus.wsp.main.WebSpa;
 import net.seleucus.wsp.server.WSServer;
 
@@ -75,9 +79,17 @@ public class WSUserShowTest {
 		
 		WSUserShow myUserShow = new WSUserShow(wsServer);
 		assertFalse(myUserShow.isValid("Anything"));
-		
 	}
-	
 
+	@Test
+	public void getDecoyUsersTest() throws SQLException, ClassNotFoundException {
+		final String DB_PATH = "webspa-db";
+		final Connection wsConnection;
+
+		Class.forName("org.hsqldb.jdbcDriver");
+		wsConnection = DriverManager.getConnection("jdbc:hsqldb:" + DB_PATH);
+		WSUsers wsUsers = new WSUsers(wsConnection);
+
+	}
 
 }

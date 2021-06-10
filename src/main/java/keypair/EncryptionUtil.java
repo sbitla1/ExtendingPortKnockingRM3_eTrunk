@@ -1,4 +1,4 @@
-package net.seleucus.wsp.keypair;
+package keypair;
 
 import javax.crypto.Cipher;
 import java.io.*;
