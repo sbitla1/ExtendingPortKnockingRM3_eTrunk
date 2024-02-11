@@ -25,7 +25,7 @@ Go to target folder and enter below command
   
  New Security Features:
  
- 1. Sending 5 extra knocks with every client request in non chronological order every time
- 2. Added Private/Public key encrption to pass-phrases/keys taht store in Database
- 3. New Database TABLE (DECOY_USER) was introduced to capture the decoy knock requests
- 4. Capturing and detecing of decoy users in system to detect Man-in-Middle Attack
+ 1. Sending 5 extra knocks with every client request in non chronological order every time.
+ 2. Added Private/Public key encrption to pass-phrases/keys taht store in Database.
+ 3. New Database TABLE (DECOY_USER) was introduced to capture the decoy knock requests.
+ 4. Capturing and detection of the decoy users in system to identify Man-in-Middle Attack, if any.
